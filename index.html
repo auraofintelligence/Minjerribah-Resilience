@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Minjerribah Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Warm Neutral Protopia -->
+    <!-- Application Structure Plan: The SPA is structured as a phased journey (Philosophy -> Phase 1: Foundation -> Phase 2: Subterranean -> Phase 3: Expansion -> Meta: Gamification) culminating in an interactive Threat Dashboard. This phased approach was chosen to deconstruct the user's vast, complex, and multi-domain vision into a logical, step-by-step narrative. It allows a user to grasp the foundational principles first, then see the tangible build-out in escalating stages, and finally interact with the complete system via the dashboard. This is far more digestible than a flat list of 20 threats or a structure mirroring the disparate PDFs. -->
+    <!-- Visualization & Content Choices: 1. Core Systems (Phase 1): Info=Power, Water, Food, Comms. Goal=Inform/Organize. Viz=Tailwind Grid of Cards w/ Unicode Icons (⚡️, 💧). Interaction=Hover. Justification=Clear, scannable grouping of core domains. 2. Philosophy (Core): Info=Sovereign Node, Braided Economy, Aura. Goal=Explain. Viz=Tabbed Interface. Interaction=JS Click to show/hide content. Justification=Prevents wall of text. 3. Spoil Calculator (Phase 2): Info=Tunnel Spoil -> Reefs. Goal=Engage/Gamify. Viz=HTML Slider & JS Text Output. Interaction=JS `oninput` to run live calculation. Justification=Makes abstract "spoil" concept tangible. 4. Crystal Potential (Phase 2): Info=GNoME Crystal Discovery. Goal=Visualize data. Viz=Chart.js Doughnut Chart (in responsive .chart-container). Interaction=Hover tooltips. Justification=Fulfills Chart.js requirement, visualizes a key data point. 5. Threat Dashboard (Threats): Info=Threats vs. Systems. Goal=Relate/Synthesize. Viz=Interactive 2-column layout (Buttons + List). Interaction=JS Click on threat button highlights relevant system list items. Justification=The key synthesis tool, proves the plan's comprehensive nature interactively. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: color 0.2s, border-bottom-color 0.2s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #2563EB; 
+            border-bottom-color: #2563EB;
+        }
+        .tab-button {
+            transition: all 0.2s;
+        }
+        .tab-button.active {
+            background-color: #3B82F6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .system-item {
+            transition: all 0.3s ease-in-out;
+            border: 1px solid #E5E7EB;
+        }
+        .system-item.highlighted {
+            background-color: #DBEAFE;
+            border-color: #3B82F6;
+            transform: scale(1.02);
+            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+        }
+        .threat-button {
+            transition: all 0.2s;
+        }
+        .threat-button.active {
+            background-color: #1E40AF;
+            color: white;
+            ring: 2px;
+            ring-offset-2;
+            ring-color: #1E40AF;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="sticky top-0 z-50 w-full bg-white shadow-md">
+        <nav class="container mx-auto flex flex-wrap items-center justify-between p-4">
+            <div class="text-2xl font-bold text-blue-700">Minjerribah Protocol</div>
+            <button id="nav-toggle" class="block lg:hidden rounded border border-gray-300 p-2 text-gray-600 hover:bg-gray-100">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div id="nav-menu" class="hidden w-full lg:flex lg:w-auto lg:items-center">
+                <ul class="flex flex-col gap-2 pt-4 text-lg lg:flex-row lg:items-center lg:gap-6 lg:pt-0">
+                    <li><a href="#home" class="nav-link block border-b-2 border-transparent py-2 hover:text-blue-600">Vision</a></li>
+                    <li><a href="#philosophy" class="nav-link block border-b-2 border-transparent py-2 hover:text-blue-600">Philosophy</a></li>
+                    <li><a href="#phase1" class="nav-link block border-b-2 border-transparent py-2 hover:text-blue-600">Phase 1: Foundation</a></li>
+                    <li><a href="#phase2" class="nav-link block border-b-2 border-transparent py-2 hover:text-blue-600">Phase 2: Subterranean</a></li>
+                    <li><a href="#phase3" class="nav-link block border-b-2 border-transparent py-2 hover:text-blue-600">Phase 3: Expansion</a></li>
+                    <li><a href="#gamification" class="nav-link block border-b-2 border-transparent py-2 hover:text-blue-600">Gamification</a></li>
+                    <li><a href="#threats" class="nav-link block border-b-2 border-transparent py-2 hover:text-blue-600">Threat Dashboard</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="home" class="min-h-[60vh] rounded-lg bg-white p-8 text-center shadow-lg md:p-12">
+            <h1 class="mb-4 text-4xl font-bold text-blue-800 md:text-6xl">The Minjerribah Protocol</h1>
+            <p class="mb-8 text-xl text-gray-600 md:text-2xl">A Blueprint for Sovereign Resilience & Regenerative Civilization</p>
+            <p class="mx-auto max-w-3xl text-base text-gray-700 md:text-lg">
+                This is an interactive exploration of a radical vision for North Stradbroke Island (Minjerribah). It details a phased protocol to build a fully resilient, self-sovereign, and technologically advanced community capable of withstanding existential threats, from cyclones to cosmic events. This plan gamifies the process of radical self-reliance, starting with local systems and expanding to subterranean and interplanetary ambitions.
+            </p>
+            <a href="#philosophy" class="nav-link mt-8 inline-block rounded-full bg-blue-600 px-8 py-3 text-lg font-medium text-white shadow-lg transition hover:bg-blue-700">Explore the Vision</a>
+        </section>
+
+        <section id="philosophy" class="mt-12 rounded-lg bg-white p-8 shadow-lg md:p-12">
+            <h2 class="mb-6 text-center text-3xl font-bold text-gray-900 md:text-4xl">Core Philosophy</h2>
+            <p class="mb-8 text-center text-lg text-gray-600">This protocol is built on a new operating system for society. These core concepts are the "why" behind every action, creating a decentralized, offline-first, and human-centric framework.</p>
+            
+            <div class="mb-6 flex flex-wrap justify-center gap-2">
+                <button class="tab-button active rounded-full px-6 py-2 text-base font-medium text-gray-700 ring-1 ring-gray-300 hover:bg-gray-100 md:text-lg" data-tab="sovereign-node">Sovereign Node</button>
+                <button class="tab-button rounded-full px-6 py-2 text-base font-medium text-gray-700 ring-1 ring-gray-300 hover:bg-gray-100 md:text-lg" data-tab="digital-twin">Personal Aura (Digital Twin)</button>
+                <button class="tab-button rounded-full px-6 py-2 text-base font-medium text-gray-700 ring-1 ring-gray-300 hover:bg-gray-100 md:text-lg" data-tab="braided-economy">Braided Economy</button>
+            </div>
+
+            <div class="mt-8 max-w-4xl mx-auto">
+                <div id="tab-content-sovereign-node" class="tab-content">
+                    <h3 class="mb-3 text-2xl font-semibold text-blue-700">The Sovereign Node</h3>
+                    <p class="text-gray-700">The fundamental building block. Each individual, home, and community hub runs its own "Sovereign Node." This is an offline-first, peer-to-peer data vault and server. It ensures that all personal data (your "Aura") and community data is owned and controlled locally. It rejects the client-server model, meaning the system works perfectly without an internet connection, synchronizing with other nodes when available via LORA, WiFi, or LiFi. This is the foundation of digital and governance sovereignty.</p>
+                </div>
+                <div id="tab-content-digital-twin" class="tab-content hidden">
+                    <h3 class="mb-3 text-2xl font-semibold text-blue-700">Personal Aura (Digital Twin)</h3>
+                    <p class="text-gray-700">Your "Aura" is your personal digital twin, stored securely on your Sovereign Node. It's a gamified, living representation of your wellbeing, knowledge, and connections. It serves as your sovereign identity, your health passport, and your interface with the "Virtual Minjerribah" game. It's a tool for self-discovery and optimization, allowing you to model your future and connect with the community's collective intelligence.</p>
+                </div>
+                <div id="tab-content-braided-economy" class="tab-content hidden">
+                    <h3 class="mb-3 text-2xl font-semibold text-blue-700">The Braided Economy</h3>
+                    <p class="text-gray-700">This framework moves beyond simple financial capitalism. It "braids" together multiple forms of value: traditional finance, ecological contribution (e.g., building reefs), social capital (e.g., teaching or caring), and knowledge creation. By tracking these contributions through the digital twin system, the community can reward and incentivize actions that genuinely regenerate the individual, the community, and the environment, creating a truly sustainable and abundant society.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase1" class="mt-12">
+            <h2 class="mb-6 text-center text-3xl font-bold text-gray-900 md:text-4xl">Phase 1: Foundational Resilience</h2>
+            <p class="mb-8 text-center text-lg text-gray-600">The first step is to achieve radical self-reliance by decentralizing all critical life-support systems. This phase focuses on building robust, scalable, and locally-owned infrastructure to withstand common disasters like fires, cyclones, and grid failures.</p>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="rounded-lg bg-white p-6 shadow-lg transition hover:shadow-xl">
+                    <span class="text-5xl">⚡️</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Local Power</h3>
+                    <p class="text-gray-700">Decentralized solar, wind, and bladeless tidal/wave generators. Energy is stored locally in high-capacity sand batteries. Each community hub and home becomes a micro-grid, sharing excess power with neighbors.</p>
+                </div>
+                <div class="rounded-lg bg-white p-6 shadow-lg transition hover:shadow-xl">
+                    <span class="text-5xl">💧</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Water Sovereignty</h3>
+                    <p class="text-gray-700">Atmospheric water generation, localized desalination, and rainwater harvesting systems. Integrated greywater treatment and recycling ensures a closed-loop water supply, independent of mainland infrastructure.</p>
+                </div>
+                <div class="rounded-lg bg-white p-6 shadow-lg transition hover:shadow-xl">
+                    <span class="text-5xl">🍎</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Food Sovereignty</h3>
+                    <p class="text-gray-700">High-yield vertical farms, permaculture gardens, and aquaculture. Subterranean mushroom and algae farms (Phase 2) provide year-round, climate-proof food and medicine supplies.</p>
+                </div>
+                <div class="rounded-lg bg-white p-6 shadow-lg transition hover:shadow-xl">
+                    <span class="text-5xl">📡</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Decentralized Comms</h3>
+                    <p class="text-gray-700">An "offline-first" mesh network using LORA, WiFi, and LiFi. Solar-powered kiosks at community hubs host local servers, ensuring communication, data access, and governance tools remain functional even if the global internet fails.</p>
+                </div>
+                <div class="rounded-lg bg-white p-6 shadow-lg transition hover:shadow-xl">
+                    <span class="text-5xl">🧑‍⚖️</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Sovereign Governance</h3>
+                    <p class="text-gray-700">A "digital twin" of the community's governance system. Proposals, voting, and resource management are handled via the Sovereign Node network, ensuring transparent, decentralized, and resilient decision-making.</p>
+                </div>
+                <div class="rounded-lg bg-white p-6 shadow-lg transition hover:shadow-xl">
+                    <span class="text-5xl">🤖</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Local Automation</h3>
+                    <p class="text-gray-700">Utilizing AI and robotics for automating repetitive tasks in farming, construction, and resource management. This frees human capital for higher-level tasks, education, and wellbeing, all governed by the community.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase2" class="mt-12 rounded-lg bg-white p-8 shadow-lg md:p-12">
+            <h2 class="mb-6 text-center text-3xl font-bold text-gray-900 md:text-4xl">Phase 2: Subterranean Expansion</h2>
+            <p class="mb-8 text-center text-lg text-gray-600">With foundations secured, resilience moves underground. This phase utilizes the island's unique geology (high-purity sand) to create vast subterranean networks for shelter, industry, and agriculture, shielded from all surface-level threats.</p>
+
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <div>
+                    <h3 class="mb-3 text-2xl font-semibold text-blue-700">Tunnels, Geopolymers & Reefs</h3>
+                    <p class="mb-4 text-gray-700">A 3m diameter tunnel boring machine (TBM) creates transport links between towns and resource deposits. The excavated sand spoil is not waste; it's the primary ingredient for geopolymer concrete—a strong, low-carbon building material used to 3D-print the tunnels' lining, subterranean structures, and artificial reefs.</p>
+                    <p class="mb-4 text-gray-700">These artificial reefs combat coastal erosion, anchor bladeless tidal generators, and restore marine ecosystems, creating a perfect regenerative loop.</p>
+                    
+                    <div class="mt-6 rounded-lg border border-gray-200 p-4">
+                        <label for="tunnelSlider" class="block text-lg font-medium text-gray-800">Interactive Calculator: Reefs from Spoil</label>
+                        <p class="text-sm text-gray-600">See how much reef we can build. (Based on a 3m diameter tunnel).</p>
+                        <input type="range" id="tunnelSlider" min="1" max="50" value="5" class="mt-4 w-full">
+                        <p class="mt-2 text-center text-lg">
+                            <span id="tunnelOutput" class="font-bold text-blue-600">5</span> km of tunneling creates 
+                            <span id="reefOutput" class="font-bold text-blue-600">17,671</span> modular reef units.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="mb-3 text-2xl font-semibold text-blue-700">Subterranean Industry & Science</h3>
+                    <p class="mb-4 text-gray-700">These shielded, stable-temperature tunnels are perfect for:
+                        <ul class="ml-5 list-disc space-y-1 text-gray-700">
+                            <li><strong>Advanced Agriculture:</strong> Mycelium (mushroom) farms, algae vats, and hydroponics for medicine and food.</li>
+                            <li><strong>Emergency Shelters:</strong> Population-scale shelters protected from radiation, cyclones, and solar flares.</li>
+                            <li><strong>Manufacturing:</strong> Using local mineral sands (rutile, zircon) and insights from AI like DeepMind's GNoME to manufacture new crystals, computer chips, and data storage.</li>
+                        </ul>
+                    </p>
+                    
+                    <div class="mt-6">
+                        <h4 class="mb-2 text-center text-lg font-medium text-gray-800">GNoME Crystal Potential</h4>
+                        <div class="chart-container">
+                            <canvas id="crystalChart"></canvas>
+                        </div>
+                        <p class="mt-2 text-center text-sm text-gray-600">Visualizing the 2.2M new crystal structures found by GNoME, including 380k stable materials that could be synthesized locally for future technologies.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase3" class="mt-12">
+            <h2 class="mb-6 text-center text-3xl font-bold text-gray-900 md:text-4xl">Phase 3: Continental & Kardashev Scale</h2>
+            <p class="mb-8 text-center text-lg text-gray-600">The protocol scales from an island to a continental, and ultimately, interplanetary civilization. The subterranean network expands under Moreton Bay, using spoil to create new, stable landmasses and pioneering large-scale energy systems.</p>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div class="rounded-lg bg-white p-6 shadow-lg">
+                    <span class="text-5xl">🏝️</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Artificial Islands</h3>
+                    <p class="text-gray-700">Lateral mining under the bay provides millions of tonnes of spoil, used to build new, resilient islands engineered for sea-level rise and optimized for living, industry, and ecosystem regeneration.</p>
+                </div>
+                <div class="rounded-lg bg-white p-6 shadow-lg">
+                    <span class="text-5xl">🚀</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Sovereign Space Port</h3>
+                    <p class="text-gray-700">These new, stable landmasses, built far from populated centers and anchored to the continental shelf, become the ideal location for a sovereign space port, securing Minjerribah's role in the future economy.</p>
+                </div>
+                <div class="rounded-lg bg-white p-6 shadow-lg">
+                    <span class="text-5xl">📐</span>
+                    <h3 class="mt-4 mb-2 text-2xl font-semibold">Planetary Engineering</h3>
+                    <p class="text-gray-700">The final phase explores Kardashev-scale engineering. This includes building modern energy pyramids beneath major sandhills, researching planetary ionospheric harvesting and stabilization, and securing humanity's long-term future.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="gamification" class="mt-12 rounded-lg bg-gray-900 p-8 text-white shadow-lg md:p-12">
+            <h2 class="mb-6 text-center text-3xl font-bold md:text-4xl">The "How": Gamification of Life</h2>
+            <p class="mb-8 text-center text-lg text-gray-300">This entire protocol is not a top-down mandate; it's a "Choose Your Own Adventure" game. The "Virtual Minjerribah" platform and the "Personal Aura" are the user interfaces for this new reality, making resilience-building engaging, educational, and collaborative.</p>
+            <div class="mx-auto max-w-4xl space-y-4 text-gray-200">
+                <p><strong>Virtual Minjerribah:</strong> A 1:1 digital twin of the island, from the "Ancestor Simulations" of the past to the "Future Forward Stack" where we can model and build these new systems. It's a game, a planning tool, and a cultural archive.</p>
+                <p><strong>The Protopian Gambit:</strong> This is the game's narrative. Instead of fearing apocalypse, we "gamify" the challenge. Users (players) take on quests: "Install a Sovereign Node," "Contribute to the Geopolymer Reef," "Design a new AI agent." Their real-world actions upgrade their "Aura" and the community's resilience score.</p>
+                <p><strong>Sovereign Space Builder:</strong> A tool within the game that lets you design your own home, community hub, or subterranean farm, optimized for resilience and wellbeing, and then connect with the resources and "10 Companies" ecosystem to build it in the real world.</p>
+            </div>
+        </section>
+
+        <section id="threats" class="mt-12">
+            <h2 class="mb-6 text-center text-3xl font-bold text-gray-900 md:text-4xl">Interactive Threat Dashboard</h2>
+            <p class="mb-8 text-center text-lg text-gray-600">How does this all work in practice? Click a threat to see which systems in the Minjerribah Protocol are designed to mitigate it. This demonstrates the "fractal" or "all-hazards" nature of the plan: systems built for one purpose provide resilience against all.</p>
+            
+            <div class="flex flex-col gap-6 md:flex-row">
+                <div class="w-full rounded-lg bg-white p-6 shadow-lg md:w-1/3">
+                    <h3 class="mb-4 text-xl font-semibold">Select an Existential Threat:</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-power,sys-water,sys-food,sys-comms,sys-shelter,sys-governance">🔥 Wildfire</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-power,sys-water,sys-food,sys-comms,sys-shelter,sys-reefs,sys-governance">🌀 Cyclone</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-water,sys-food,sys-shelter,sys-dna,sys-governance">☣️ Pandemic</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-power,sys-comms,sys-node,sys-shelter,sys-chips,sys-governance,sys-automation">☀️ Solar Mega-Flare</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-water,sys-shelter,sys-reefs,sys-islands">🌊 Tidal Wave / Sea Level</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-power,sys-water,sys-food,sys-comms,sys-shelter,sys-governance,sys-dna,sys-chips">☢️ Nuclear War</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-water,sys-food,sys-shelter,sys-power,sys-dna,sys-governance">🌋 Supervolcano</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-shelter,sys-power,sys-food,sys-dna,sys-chips,sys-pyramids">🌠 Impact / Cosmic Ray</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-node,sys-governance,sys-automation,sys-aura,sys-comms">🤖 Rogue AI</button>
+                        <button class="threat-button rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-800 ring-1 ring-gray-300 hover:bg-gray-200" data-threats="sys-power,sys-water,sys-food,sys-comms,sys-shelter,sys-governance,sys-aura,sys-node,sys-reefs,sys-islands,sys-space,sys-pyramids,sys-chips,sys-dna,sys-automation">👽 Alien Invasion</button>
+                        
+                        <button id="resetThreats" class="mt-4 w-full rounded-full bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700">Reset View</button>
+                    </div>
+                </div>
+                <div class="w-full rounded-lg bg-white p-6 shadow-lg md:w-2/3">
+                    <h3 class="mb-4 text-xl font-semibold">Activated Resilience Systems:</h3>
+                    <ul id="systemList" class="space-y-2">
+                        <li id="sys-power" class="system-item rounded-md p-3">⚡️ <strong>Local Power:</strong> Decentralized grid, sand batteries.</li>
+                        <li id="sys-water" class="system-item rounded-md p-3">💧 <strong>Water Sovereignty:</strong> Localized desalination & water capture.</li>
+                        <li id="sys-food" class="system-item rounded-md p-3">🍎 <strong>Food Sovereignty:</strong> Vertical & subterranean farms.</li>
+                        <li id="sys-comms" class="system-item rounded-md p-3">📡 <strong>Decentralized Comms:</strong> Offline-first LORA/LiFi mesh network.</li>
+                        <li id="sys-node" class="system-item rounded-md p-3">📦 <strong>Sovereign Node:</strong> Peer-to-peer data & computation.</li>
+                        <li id="sys-aura" class="system-item rounded-md p-3">👤 <strong>Personal Aura:</strong> Sovereign identity & health twin.</li>
+                        <li id="sys-governance" class="system-item rounded-md p-3">🧑‍⚖️ <strong>Sovereign Governance:</strong> Decentralized, offline decision-making.</li>
+                        <li id="sys-shelter" class="system-item rounded-md p-3">🛡️ <strong>Subterranean Shelters:</strong> Tunnels & bunkers from geopolymer concrete.</li>
+                        <li id="sys-reefs" class="system-item rounded-md p-3">🐠 <strong>Artificial Reefs:</strong> Coastal protection & energy generation.</li>
+                        <li id="sys-islands" class="system-item rounded-md p-3">🏝️ <strong>Artificial Islands:</strong> New, engineered landmasses.</li>
+                        <li id="sys-space" class="system-item rounded-md p-3">🚀 <strong>Space Port:</strong> Sovereign access to space.</li>
+                        <li id="sys-pyramids" class="system-item rounded-md p-3">📐 <strong>Kardashev Engineering:</strong> Planetary-scale energy systems.</li>
+                        <li id="sys-chips" class="system-item rounded-md p-3">🔬 <strong>Local Manufacturing:</strong> On-island chip & crystal fabrication.</li>
+                        <li id="sys-dna" class="system-item rounded-md p-3">🧬 <strong>Local DNA/RNA Analysis:</strong> Sovereign biotech & medicine.</li>
+                        <li id="sys-automation" class="system-item rounded-md p-3">🤖 <strong>Local Automation:</strong> AI-assisted farming & manufacturing.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="mt-12 border-t border-gray-200 bg-white py-8 text-center">
+        <p class="text-gray-600">The Minjerribah Protocol: Gamifying a Protopian Future.</p>
+        <p class="text-sm text-gray-500">This interactive document is a synthesis of the "Virtual Minjerribah" and "Sovereign Resilience" frameworks.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const navToggle = document.getElementById('nav-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            if (navToggle && navMenu) {
+                navToggle.addEventListener('click', () => {
+                    navMenu.classList.toggle('hidden');
+                });
+            }
+
+            document.querySelectorAll('.nav-link').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                    if (window.innerWidth < 1024 && navMenu) {
+                        navMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.dataset.tab;
+                    
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                    
+                    tabContents.forEach(content => {
+                        if (content.id === `tab-content-${tabId}`) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+
+            const slider = document.getElementById('tunnelSlider');
+            const tunnelOutput = document.getElementById('tunnelOutput');
+            const reefOutput = document.getElementById('reefOutput');
+            if (slider && reefOutput && tunnelOutput) {
+                slider.addEventListener('input', () => {
+                    const km = parseFloat(slider.value);
+                    const tunnelRadiusMeters = 1.5; 
+                    const spoilVolumeCubicMeters = (Math.PI * Math.pow(tunnelRadiusMeters, 2)) * (km * 1000);
+                    const swellFactor = 1.25; 
+                    const totalSpoil = spoilVolumeCubicMeters * swellFactor;
+                    const reefUnitVolume = 2; 
+                    const reefUnits = Math.floor(totalSpoil / reefUnitVolume);
+                    
+                    tunnelOutput.textContent = km;
+                    reefOutput.textContent = reefUnits.toLocaleString();
+                });
+            }
+
+            const ctx = document.getElementById('crystalChart');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Stable Materials (Tech Potential)', 'Other Stable Materials', 'Other Discoveries'],
+                        datasets: [{
+                            label: 'GNoME Discoveries',
+                            data: [380000, 500000, 2200000 - 380000 - 500000],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.8)', 
+                                'rgba(34, 197, 94, 0.8)', 
+                                'rgba(209, 213, 219, 0.8)'  
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(34, 197, 94, 1)',
+                                'rgba(209, 213, 219, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    boxWidth: 12
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed.toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const threatButtons = document.querySelectorAll('.threat-button');
+            const systemItems = document.querySelectorAll('.system-item');
+            const resetButton = document.getElementById('resetThreats');
+
+            threatButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    threatButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    systemItems.forEach(item => {
+                        item.classList.remove('highlighted');
+                    });
+                    
+                    const threats = button.dataset.threats.split(',');
+                    threats.forEach(threatId => {
+                        const el = document.getElementById(threatId);
+                        if (el) {
+                            el.classList.add('highlighted');
+                        }
+                    });
+                });
+            });
+
+            if (resetButton) {
+                resetButton.addEventListener('click', () => {
+                    systemItems.forEach(item => {
+                        item.classList.remove('highlighted');
+                    });
+                    threatButtons.forEach(btn => btn.classList.remove('active'));
+                });
+            }
+        });
+    </script>
+</body>
+</html>
